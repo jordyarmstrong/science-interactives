@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rutherford's Gold Foil</title>
+<meta name="description" content="Fire alpha particles at gold foil and find out what Rutherford's experiment showed about the atom.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e9eef3; --card:#ffffff; --ink:#1d2b3a; --muted:#566577; --line:#cfd8e2;
+  --accent:#2f5d8a; --accent-soft:#dbe6f1; --alpha:#d23c33; --gold:#c8971f;
+  --flash:#8dffb0; --dark:#122030;
+}
+*{box-sizing:border-box}
+html{font-family:'Lexend',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+body{margin:0;background:var(--bg)}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1360px;margin:0 auto;padding:14px 16px 28px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;margin-bottom:12px}
+h1{font-size:clamp(22px,2.6vw,32px);margin:0;font-weight:700;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);font-size:14px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 300px;gap:14px;align-items:start}
+figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px}
+figcaption{font-size:14px;font-weight:600;margin:0 4px 8px;display:flex;justify-content:space-between;gap:8px}
+figcaption span{font-weight:400;color:var(--muted)}
+canvas{display:block;width:100%;max-width:100%;min-width:0;height:auto;aspect-ratio:1;border-radius:10px}
+.note{font-size:12px;color:var(--muted);margin:8px 4px 0;line-height:1.45}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:14px}
+.panel h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 6px;font-weight:600}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--accent-soft);border-radius:10px;padding:4px;gap:4px}
+.seg button{border:0;border-radius:8px;padding:9px 6px;background:transparent;color:var(--accent);font-weight:600;font-size:15px}
+.seg button[aria-pressed=true]{background:var(--accent);color:#fff}
+.model-desc{font-size:13px;line-height:1.45;margin:8px 0 0;color:var(--muted);min-height:3.8em}
+.btns{display:grid;gap:8px}
+.btn{border:1px solid var(--accent);background:#fff;color:var(--accent);border-radius:10px;padding:10px 12px;font-weight:600;font-size:15px;text-align:left;display:flex;justify-content:space-between;align-items:center}
+.btn.primary{background:var(--alpha);border-color:var(--alpha);color:#fff}
+.btn[aria-pressed=true]{background:var(--accent);color:#fff}
+.btn small{font-weight:400;font-size:12px;opacity:.85}
+.btn.quiet{border-color:var(--line);color:var(--muted)}
+.counts{display:grid;gap:9px}
+.row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:14px}
+.row b{font-variant-numeric:tabular-nums}
+.bar{grid-column:1/-1;height:10px;background:#edf1f5;border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:5px;transition:width .25s}
+.total{font-size:13px;color:var(--muted);display:flex;justify-content:space-between}
+.mode{font-size:12px;color:var(--muted);line-height:1.4;margin:0}
+.poe{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.step h3{margin:0 0 8px;font-size:18px}
+.step h3 span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:15px;margin-right:8px}
+.step p{margin:0 0 10px;font-size:15px;line-height:1.5}
+.choices{display:grid;gap:6px}
+.choice{border:1px solid var(--line);background:#f6f8fa;border-radius:8px;padding:8px 10px;text-align:left;font-size:14px;color:var(--ink)}
+.choice[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.feedback{font-size:14px;color:var(--accent);margin:8px 0 0;min-height:1.4em}
+.reveal{border-top:1px solid var(--line);padding:9px 0}
+.reveal:last-child{padding-bottom:0}
+.reveal .obs{font-size:14px;margin:0 0 6px}
+.reveal button{border:0;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:4px 10px;font-size:13px;font-weight:600}
+.reveal .ans{font-size:14px;margin:6px 0 0;font-weight:600;color:var(--accent)}
+blockquote{margin:8px 0 0;padding:8px 12px;border-left:4px solid var(--gold);background:#fbf6e8;font-size:14px;line-height:1.5;border-radius:0 8px 8px 0}
+blockquote cite{display:block;font-style:normal;color:var(--muted);font-size:12px;margin-top:4px}
+footer{margin-top:14px;font-size:13px;color:var(--muted);line-height:1.5}
+@media (max-width:1100px){
+  .stage{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .panel{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .stage,.poe,.panel{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Rutherford's gold foil experiment</h1>
+    <p>Fire alpha particles at gold foil. Where do they go, and what does that tell us about atoms?</p>
+  </header>
+
+  <div class="stage">
+    <figure>
+      <figcaption>The experiment <span>seen from above, in a dark room</span></figcaption>
+      <canvas id="lab" width="560" height="560" aria-label="Apparatus: a radioactive source in a lead box fires alpha particles at gold foil. A ring-shaped zinc sulfide screen around the foil flashes where each alpha particle lands."></canvas>
+      <p class="note">Each flash on the screen is one alpha particle. The dots build up so you can see where they all landed.</p>
+    </figure>
+    <figure>
+      <figcaption>Inside the foil <span>zoomed in on a few gold atoms</span></figcaption>
+      <canvas id="zoom" width="560" height="560" aria-label="Zoomed-in view of gold atoms in the foil, with the paths of alpha particles passing through them."></canvas>
+      <p class="note" id="scale-note"></p>
+    </figure>
+
+    <div class="panel">
+      <div>
+        <h2>Atom model in the foil</h2>
+        <div class="seg" role="group" aria-label="Atom model">
+          <button id="m-plum" aria-pressed="true">Plum pudding</button>
+          <button id="m-nuc" aria-pressed="false">Nuclear</button>
+        </div>
+        <p class="model-desc" id="model-desc"></p>
+      </div>
+      <div>
+        <h2>Fire</h2>
+        <div class="btns">
+          <button class="btn primary" id="fire">Fire one α <small>or press space</small></button>
+          <button class="btn" id="stream" aria-pressed="false">Fire a stream <small>start</small></button>
+          <button class="btn" id="real">Fire 40 000 <small>real odds</small></button>
+          <button class="btn quiet" id="clear">Clear the screen</button>
+        </div>
+      </div>
+      <div>
+        <h2>Where they landed</h2>
+        <div class="counts">
+          <div class="row"><span>Straight through <small>(less than 10°)</small></span><b id="c-straight">0</b><div class="bar"><i id="b-straight" style="background:#4f9a6b"></i></div></div>
+          <div class="row"><span>Deflected <small>(10° to 90°)</small></span><b id="c-deflected">0</b><div class="bar"><i id="b-deflected" style="background:var(--gold)"></i></div></div>
+          <div class="row"><span>Bounced back <small>(more than 90°)</small></span><b id="c-back">0</b><div class="bar"><i id="b-back" style="background:var(--alpha)"></i></div></div>
+          <div class="total"><span>Alpha particles fired</span><b id="c-total">0</b></div>
+          <p class="mode" id="mode-note"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="poe">
+    <section class="step">
+      <h3><span>1</span>Predict</h3>
+      <p>In 1909 scientists pictured the atom as a <b>plum pudding</b>: positive charge spread thinly through the whole atom, with tiny negative electrons dotted through it. Alpha particles are tiny, fast and positive. What did Rutherford's team <i>expect</i> when they fired them at gold foil?</p>
+      <div class="choices" role="group" aria-label="Your prediction">
+        <button class="choice" data-p="0">Nearly all go straight through</button>
+        <button class="choice" data-p="1">Some bounce back</button>
+        <button class="choice" data-p="2">All of them bounce back</button>
+      </div>
+      <p class="feedback" id="predict-fb" aria-live="polite"></p>
+    </section>
+    <section class="step">
+      <h3><span>2</span>Observe</h3>
+      <p>Now switch to the <b>Nuclear</b> atom. This model gives what Geiger and Marsden really saw. Fire a stream, then fire 40 000 at real odds. What is different from the plum pudding atom?</p>
+      <div class="reveal">
+        <button data-show="quote">How surprised was Rutherford?</button>
+        <blockquote id="quote" hidden>"It was quite the most incredible event that has ever happened to me in my life. It was almost as incredible as if you fired a 15-inch shell at a piece of tissue paper and it came back and hit you."<cite>Ernest Rutherford, looking back on the experiment</cite></blockquote>
+      </div>
+    </section>
+    <section class="step">
+      <h3><span>3</span>Explain</h3>
+      <p>What does each result tell us about the atom?</p>
+      <div class="reveal"><p class="obs">Most alpha particles went straight through.</p><button data-show="a1">Show</button><p class="ans" id="a1" hidden>Most of the atom is empty space.</p></div>
+      <div class="reveal"><p class="obs">A few changed direction (were deflected).</p><button data-show="a2">Show</button><p class="ans" id="a2" hidden>There is positive charge in the atom that pushes the positive alpha particles away.</p></div>
+      <div class="reveal"><p class="obs">A very few bounced straight back.</p><button data-show="a3">Show</button><p class="ans" id="a3" hidden>The positive charge and almost all the mass are packed into a tiny, dense centre: the nucleus.</p></div>
+      <div class="reveal"><p class="obs">Think further: why was it done in a dark room?</p><button data-show="a4">Show</button><p class="ans" id="a4" hidden>Each flash on the zinc sulfide screen was tiny and faint. They counted the flashes by eye through a microscope.</p></div>
+      <div class="reveal"><p class="obs">Think further: why gold?</p><button data-show="a5">Show</button><p class="ans" id="a5" hidden>Gold can be hammered into very thin foil, less than a thousandth of a millimetre thick, so the alpha particles pass through only a thin layer of atoms.</p></div>
+    </section>
+  </div>
+
+  <footer>Ernest Rutherford was born in 1871 near Nelson, Aotearoa New Zealand. In 1909 Hans Geiger and Ernest Marsden did this experiment in Rutherford's laboratory in Manchester, England, and in 1911 Rutherford explained it with the nuclear model of the atom. Marsden later moved to New Zealand. Neither view is to scale.</footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+const W = 560, H = 560;
+
+// ---------- canvases ----------
+function setup(cv) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, dpr };
+}
+const lab = setup(document.getElementById('lab'));
+const zoom = setup(document.getElementById('zoom'));
+const L = lab.ctx, Z = zoom.ctx;
+// The dots that build up on the screen are drawn once onto their own layer.
+const hitLayer = document.createElement('canvas');
+hitLayer.width = W * lab.dpr; hitLayer.height = H * lab.dpr;
+const HL = hitLayer.getContext('2d');
+HL.setTransform(lab.dpr, 0, 0, lab.dpr, 0, 0);
+
+// ---------- zoomed-in foil: physics ----------
+// Gold atoms in a close-packed patch of foil. Alpha particles enter from the left.
+// Nuclear atom: a tiny positive nucleus, screened by its electrons, so the push
+// is k(1/r² − 1/R²) inside the atom and nothing outside it (the atom is neutral).
+// Plum pudding atom: the positive charge is spread through the whole atom and the
+// electrons cancel most of it, so the push anywhere is weak.
+const R = 40;                       // atom radius (px)
+const V0 = 250;                     // alpha particle speed (px/s)
+const D = 1;                        // head-on closest approach to a nucleus (px): about 3 in 100 come back, 1 in 5 are deflected
+const K_NUC = D * V0 * V0 / 2;      // ½v² = k/D for a head-on approach (mass 1)
+const K_PLUM = 0.004 * R * V0 * V0; // a weak, spread-out push: well under 1° per atom
+const atoms = [];
+[{ x: 205, off: 0 }, { x: 275, off: 40 }, { x: 345, off: 0 }].forEach(c => {
+  for (let y = -40 + c.off; y <= H + 40; y += 80) atoms.push({ x: c.x, y, ph: Math.random() * 6.283 });
+});
+
+function accel(x, y, model) {
+  let ax = 0, ay = 0;
+  for (const a of atoms) {
+    const dx = x - a.x, dy = y - a.y, r2 = dx * dx + dy * dy;
+    if (r2 >= R * R) continue;
+    const r = Math.sqrt(r2) || 1e-6;
+    let f;
+    if (model === 'nuclear') {
+      const rr = Math.max(r, 0.2);
+      f = K_NUC * (1 / (rr * rr) - 1 / (R * R));
+    } else {
+      const s = r / R;
+      f = K_PLUM * 4 * s * (1 - s) / (R * R);
+    }
+    ax += f * dx / r; ay += f * dy / r;
+  }
+  return [ax, ay];
+}
+function nearestNucleus(x, y) {
+  let m = 1e9;
+  for (const a of atoms) { const d = Math.hypot(x - a.x, y - a.y); if (d < m) m = d; }
+  return m;
+}
+// Velocity Verlet with small steps near a nucleus.
+function advance(p, dt, model) {
+  let t = 0;
+  while (t < dt) {
+    const h = Math.min(dt - t, Math.max(0.00002, 0.02 * nearestNucleus(p.x, p.y) / V0), 1 / 240);
+    const [ax, ay] = p.a || accel(p.x, p.y, model);
+    p.x += p.vx * h + 0.5 * ax * h * h;
+    p.y += p.vy * h + 0.5 * ay * h * h;
+    const [bx, by] = accel(p.x, p.y, model);
+    p.vx += 0.5 * (ax + bx) * h; p.vy += 0.5 * (ay + by) * h;
+    p.a = [bx, by];
+    t += h;
+  }
+}
+const outside = p => p.x > W + 12 || p.x < -12 || p.y < -12 || p.y > H + 12;
+const angleOf = p => Math.atan2(Math.abs(p.vy), p.vx) * 180 / Math.PI; // 0° straight on, 180° straight back
+
+// ---------- apparatus geometry ----------
+const C = { x: 300, y: 280 };     // the foil
+const RS = 205;                    // radius of the zinc sulfide screen
+const SRC = { x: 52, y: 280 };     // mouth of the lead box
+const GAP = 9 * Math.PI / 180;     // gap in the screen where the beam comes in
+const screenPoint = (theta, sign, r = RS) => {
+  const t = Math.min(theta, 180 - 10) * Math.PI / 180;
+  return { x: C.x + r * Math.cos(t), y: C.y + sign * r * Math.sin(t) };
+};
+
+// ---------- state ----------
+let model = 'plum';
+let particles = [];   // in the zoomed-in view
+let oldPaths = [];    // faded paths of finished particles
+let macros = [];      // alpha particles crossing the apparatus
+let flashes = [];
+let counts = { straight: 0, deflected: 0, back: 0 };
+let streaming = false, streamClock = 0;
+let batch = null;     // a run of 40 000 at real odds
+let realRun = false;
+
+function classify(theta) { return theta < 10 ? 'straight' : theta <= 90 ? 'deflected' : 'back'; }
+
+function fireOne() {
+  if (batch) return;
+  if (realRun) { clearAll(); }
+  if (particles.length > 30) return;
+  const y = 14 + Math.random() * (H - 28);
+  const m = { phase: 'in', p: 0, theta: null, sign: 1, jit: (Math.random() - 0.5) * 6 };
+  macros.push(m);
+  particles.push({ x: -10, y, vx: V0, vy: 0, trail: [[-10, y]], m });
+}
+
+function land(theta, sign, showFlash = true) {
+  counts[classify(theta)]++;
+  const pt = screenPoint(theta, sign, RS + (Math.random() - 0.5) * 6);
+  HL.fillStyle = 'rgba(141,255,176,0.55)';
+  HL.beginPath(); HL.arc(pt.x, pt.y, 1.8, 0, 6.283); HL.fill();
+  if (showFlash) flashes.push({ x: pt.x, y: pt.y, age: 0 });
+  updateCounts();
+}
+
+function clearAll() {
+  particles = []; oldPaths = []; macros = []; flashes = []; batch = null; realRun = false;
+  counts = { straight: 0, deflected: 0, back: 0 };
+  HL.clearRect(0, 0, W, H);
+  updateCounts();
+}
+
+// Real odds: single scattering from one nucleus, θ = 2·atan(b₀/b) with the impact
+// parameter b spread evenly over the area around it. b₀ is set so that about
+// 1 in 8000 come back by more than 90°, as Geiger and Marsden reported (1909).
+// Plum pudding: many tiny pushes add to a degree or so at most.
+const B0 = 1 / Math.sqrt(8000);
+function sampleReal() {
+  if (model === 'nuclear') {
+    const b = Math.sqrt(Math.random()) || 1e-9;
+    return 2 * Math.atan(B0 / b) * 180 / Math.PI;
+  }
+  const g = Math.sqrt(-2 * Math.log(Math.random() || 1e-9)) * Math.cos(6.283 * Math.random());
+  return Math.abs(g) * 1.0;
+}
+function fireReal() {
+  clearAll();
+  stopStream();
+  realRun = true;
+  batch = { left: 40000, rate: 40000 / 5 };
+  updateCounts();
+}
+
+// ---------- drawing: apparatus ----------
+function drawLab(dt) {
+  L.fillStyle = '#122030'; L.fillRect(0, 0, W, H);
+  // screen
+  L.lineWidth = 12; L.strokeStyle = 'rgba(150,190,175,0.22)';
+  L.beginPath(); L.arc(C.x, C.y, RS, -Math.PI + GAP, Math.PI - GAP); L.stroke();
+  L.drawImage(hitLayer, 0, 0, W, H);
+  // lead box and source
+  L.fillStyle = '#6b7480'; L.fillRect(10, 250, 42, 60);
+  L.fillStyle = '#122030'; L.fillRect(30, 276, 22, 8);
+  L.fillStyle = '#e0b44a'; L.beginPath(); L.arc(28, 280, 5, 0, 6.283); L.fill();
+  // beam line
+  L.setLineDash([4, 6]); L.lineWidth = 1.5; L.strokeStyle = 'rgba(210,60,51,0.45)';
+  L.beginPath(); L.moveTo(SRC.x, SRC.y); L.lineTo(C.x - 4, C.y); L.stroke(); L.setLineDash([]);
+  // foil
+  L.fillStyle = '#d9a92a'; L.fillRect(C.x - 2.5, C.y - 60, 5, 120);
+  // labels
+  L.fillStyle = '#c7d3df'; L.font = '500 14px Lexend, sans-serif'; L.textAlign = 'left';
+  L.fillText('radioactive', 8, 332); L.fillText('source in a', 8, 349); L.fillText('lead box', 8, 366);
+  L.textAlign = 'center';
+  L.fillText('gold foil', C.x, C.y + 80);
+  L.fillText('zinc sulfide screen', C.x + 95, 50);
+  L.font = '400 12px Lexend, sans-serif'; L.fillStyle = '#8fa0b1';
+  L.fillText('straight through', C.x + RS - 62, C.y - 20);
+  L.fillText('0°', C.x + RS + 22, C.y + 4);
+  L.fillText('90°', C.x, C.y - RS - 14); L.fillText('90°', C.x, C.y + RS + 24);
+  L.fillText('bounced back', C.x - RS + 54, C.y + 48);
+  // alpha particles crossing the apparatus
+  for (const m of macros) {
+    let pt = null;
+    if (m.phase === 'in') {
+      m.p += dt / 0.8;
+      if (m.p >= 1) { m.p = 1; m.phase = 'wait'; }
+      pt = { x: SRC.x + (C.x - SRC.x) * m.p, y: SRC.y + m.jit * m.p * 0.3 };
+    }
+    if (m.phase === 'wait' && m.theta !== null) { m.phase = 'out'; m.p = 0; }
+    if (m.phase === 'out') {
+      m.p += dt / 0.6;
+      if (m.p >= 1) { m.phase = 'done'; land(m.theta, m.sign); }
+      else pt = screenPoint(m.theta, m.sign, RS * m.p);
+    }
+    if (pt) { L.fillStyle = '#ff6a5c'; L.beginPath(); L.arc(pt.x, pt.y, 3.5, 0, 6.283); L.fill(); }
+  }
+  macros = macros.filter(m => m.phase !== 'done');
+  // flashes
+  for (const f of flashes) {
+    f.age += dt;
+    const a = Math.max(0, 1 - f.age / 0.9);
+    const g = L.createRadialGradient(f.x, f.y, 0, f.x, f.y, 16);
+    g.addColorStop(0, `rgba(220,255,230,${a})`); g.addColorStop(0.35, `rgba(141,255,176,${a * 0.8})`); g.addColorStop(1, 'rgba(141,255,176,0)');
+    L.fillStyle = g; L.beginPath(); L.arc(f.x, f.y, 16, 0, 6.283); L.fill();
+  }
+  flashes = flashes.filter(f => f.age < 0.9);
+}
+
+// ---------- drawing: inside the foil ----------
+const plusSpots = [[-18, -14], [14, -20], [20, 12], [-12, 18], [0, 0]];
+const eSpots = [[2, -26], [-26, 2], [24, -4], [6, 24], [-6, -6]];
+function drawZoom(dt, time) {
+  Z.fillStyle = '#f7f9fb'; Z.fillRect(0, 0, W, H);
+  for (const a of atoms) {
+    if (model === 'plum') {
+      const g = Z.createRadialGradient(a.x - 10, a.y - 10, 4, a.x, a.y, R);
+      g.addColorStop(0, '#fbe1e6'); g.addColorStop(1, '#f2bfca');
+      Z.fillStyle = g; Z.beginPath(); Z.arc(a.x, a.y, R - 1, 0, 6.283); Z.fill();
+      Z.strokeStyle = 'rgba(190,110,130,0.5)'; Z.lineWidth = 1; Z.stroke();
+      Z.strokeStyle = 'rgba(170,60,90,0.55)'; Z.lineWidth = 1.6;
+      for (const [px, py] of plusSpots) {
+        Z.beginPath(); Z.moveTo(a.x + px - 3, a.y + py); Z.lineTo(a.x + px + 3, a.y + py);
+        Z.moveTo(a.x + px, a.y + py - 3); Z.lineTo(a.x + px, a.y + py + 3); Z.stroke();
+      }
+      Z.fillStyle = '#2f6fd6';
+      for (const [ex, ey] of eSpots) { Z.beginPath(); Z.arc(a.x + ex, a.y + ey, 2.6, 0, 6.283); Z.fill(); }
+    } else {
+      Z.fillStyle = 'rgba(47,111,214,0.05)'; Z.beginPath(); Z.arc(a.x, a.y, R - 1, 0, 6.283); Z.fill();
+      Z.setLineDash([3, 5]); Z.strokeStyle = 'rgba(47,111,214,0.28)'; Z.lineWidth = 1; Z.stroke(); Z.setLineDash([]);
+      Z.fillStyle = '#2f6fd6';
+      for (let i = 0; i < 4; i++) {
+        const ang = a.ph + i * 1.571 + time * 0.6 * (i % 2 ? 1 : -0.8);
+        const rr = 22 + (i % 2) * 11;
+        Z.beginPath(); Z.arc(a.x + rr * Math.cos(ang), a.y + rr * Math.sin(ang), 2.2, 0, 6.283); Z.fill();
+      }
+      Z.fillStyle = '#c8971f'; Z.strokeStyle = '#7a5a0c'; Z.lineWidth = 1;
+      Z.beginPath(); Z.arc(a.x, a.y, 3, 0, 6.283); Z.fill(); Z.stroke();
+    }
+  }
+  // paths of earlier particles, fading
+  for (const op of oldPaths) {
+    op.age += dt;
+    Z.strokeStyle = `rgba(210,60,51,${Math.max(0, 0.35 * (1 - op.age / 8))})`; Z.lineWidth = 1.5;
+    Z.beginPath(); op.pts.forEach(([x, y], i) => i ? Z.lineTo(x, y) : Z.moveTo(x, y)); Z.stroke();
+  }
+  oldPaths = oldPaths.filter(op => op.age < 8).slice(-60);
+  // particles in flight
+  for (const p of particles) {
+    advance(p, dt, model);
+    const last = p.trail[p.trail.length - 1];
+    if (Math.hypot(p.x - last[0], p.y - last[1]) > 3) p.trail.push([p.x, p.y]);
+    Z.strokeStyle = 'rgba(210,60,51,0.75)'; Z.lineWidth = 2;
+    Z.beginPath(); p.trail.forEach(([x, y], i) => i ? Z.lineTo(x, y) : Z.moveTo(x, y)); Z.lineTo(p.x, p.y); Z.stroke();
+    Z.fillStyle = '#d23c33'; Z.beginPath(); Z.arc(p.x, p.y, 4.5, 0, 6.283); Z.fill();
+    if (outside(p)) {
+      p.done = true;
+      p.trail.push([p.x, p.y]);
+      oldPaths.push({ pts: p.trail, age: 0 });
+      p.m.theta = angleOf(p); p.m.sign = p.vy >= 0 ? 1 : -1;
+    }
+  }
+  particles = particles.filter(p => !p.done);
+  // key
+  Z.font = '400 12px Lexend, sans-serif'; Z.textAlign = 'left';
+  Z.fillStyle = 'rgba(247,249,251,0.92)'; Z.fillRect(8, H - 30, model === 'plum' ? 386 : 420, 22);
+  Z.fillStyle = '#d23c33'; Z.beginPath(); Z.arc(20, H - 19, 5, 0, 6.283); Z.fill();
+  Z.fillStyle = '#1d2b3a'; Z.fillText('alpha particle (+)', 30, H - 15);
+  Z.fillStyle = '#2f6fd6'; Z.beginPath(); Z.arc(150, H - 19, 2.6, 0, 6.283); Z.fill();
+  Z.fillStyle = '#1d2b3a'; Z.fillText('electron (−)', 158, H - 15);
+  if (model === 'plum') {
+    Z.fillStyle = '#f2bfca'; Z.fillRect(248, H - 25, 12, 12);
+    Z.fillStyle = '#1d2b3a'; Z.fillText('spread-out positive', 266, H - 15);
+  } else {
+    Z.fillStyle = '#c8971f'; Z.beginPath(); Z.arc(252, H - 19, 3.5, 0, 6.283); Z.fill();
+    Z.fillStyle = '#1d2b3a'; Z.fillText('nucleus (+), drawn much bigger', 262, H - 15);
+  }
+}
+
+// ---------- loop ----------
+let lastT = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+  if (streaming) { streamClock += dt; while (streamClock > 0.22) { streamClock -= 0.22; fireOne(); } }
+  if (batch) {
+    const n = Math.min(batch.left, Math.ceil(batch.rate * dt));
+    for (let i = 0; i < n; i++) {
+      const th = sampleReal();
+      land(th, Math.random() < 0.5 ? 1 : -1, th >= 10 || Math.random() < 0.01);
+    }
+    batch.left -= n;
+    if (batch.left <= 0) batch = null;
+    updateCounts();
+  }
+  drawLab(dt);
+  drawZoom(dt, now / 1000);
+  requestAnimationFrame(frame);
+}
+
+// ---------- panel ----------
+const $ = id => document.getElementById(id);
+function pct(n, t) { if (!t) return ''; const p = 100 * n / t; return p === 0 ? '' : p < 0.1 ? ` (${p.toFixed(2)}%)` : ` (${p.toFixed(p < 10 ? 1 : 0)}%)`; }
+function updateCounts() {
+  const t = counts.straight + counts.deflected + counts.back;
+  for (const k of ['straight', 'deflected', 'back']) {
+    $('c-' + k).textContent = counts[k].toLocaleString('en-NZ') + pct(counts[k], t);
+    $('b-' + k).style.width = t ? Math.max(counts[k] ? 1.5 : 0, 100 * counts[k] / t) + '%' : '0';
+  }
+  $('c-total').textContent = t.toLocaleString('en-NZ');
+  $('mode-note').textContent = realRun
+    ? (model === 'nuclear'
+      ? 'Real odds: about 1 in 8000 bounced back in the real experiment. Nearly all of them land in one bright spot straight ahead.'
+      : 'Real odds with plum pudding atoms: every one goes straight through or very nearly.')
+    : model === 'nuclear'
+      ? 'Zoomed-in view: the nucleus is drawn far bigger than it is, so far more bounce back than in the real experiment. Use "Fire 40 000" for the real odds.'
+      : 'Use "Fire 40 000" to fire as many as the real experiment did.';
+}
+const DESCS = {
+  plum: 'Thomson\'s model (1904): positive charge spread thinly through the whole atom, with electrons dotted through it.',
+  nuclear: 'Rutherford\'s model (1911): a tiny, dense, positive nucleus in the centre, electrons around it, and mostly empty space.'
+};
+const SCALE = {
+  plum: 'Each pink circle is one gold atom. The alpha particles are drawn bigger than they really are.',
+  nuclear: 'Not to scale: a real gold nucleus is about 20 000 times narrower than its atom. If the atom were a rugby field, the nucleus would be smaller than a pea.'
+};
+function setModel(m) {
+  if (m === model) return;
+  model = m;
+  $('m-plum').setAttribute('aria-pressed', m === 'plum');
+  $('m-nuc').setAttribute('aria-pressed', m === 'nuclear');
+  $('model-desc').textContent = DESCS[m];
+  $('scale-note').textContent = SCALE[m];
+  clearAll();
+}
+function stopStream() { streaming = false; $('stream').setAttribute('aria-pressed', 'false'); $('stream').querySelector('small').textContent = 'start'; }
+$('m-plum').onclick = () => setModel('plum');
+$('m-nuc').onclick = () => setModel('nuclear');
+$('fire').onclick = fireOne;
+$('stream').onclick = () => {
+  if (streaming) return stopStream();
+  if (batch) return;
+  if (realRun) clearAll();
+  streaming = true; streamClock = 0.22;
+  $('stream').setAttribute('aria-pressed', 'true'); $('stream').querySelector('small').textContent = 'stop';
+};
+$('real').onclick = fireReal;
+$('clear').onclick = () => { stopStream(); clearAll(); };
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && !/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) { e.preventDefault(); fireOne(); }
+});
+const PREDICT_FB = 'Test it: choose Plum pudding and fire a stream. Does the model give the result you predicted?';
+document.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.choice').forEach(o => o.setAttribute('aria-pressed', o === b));
+  $('predict-fb').textContent = PREDICT_FB;
+});
+document.querySelectorAll('[data-show]').forEach(b => b.onclick = () => {
+  const el = $(b.dataset.show); el.hidden = !el.hidden;
+  b.textContent = el.hidden ? (b.dataset.show === 'quote' ? 'How surprised was Rutherford?' : 'Show') : 'Hide';
+});
+
+// Settings from the address: ?model=nuclear to start with the nuclear atom.
+const q = new URLSearchParams(location.search);
+$('model-desc').textContent = DESCS.plum; $('scale-note').textContent = SCALE.plum;
+if (q.get('model') === 'nuclear') setModel('nuclear');
+updateCounts();
+// ?demo=40 runs 40 alpha particles straight away (for a still of the page), then starts a stream.
+if (q.has('demo')) {
+  const n = Math.min(200, parseInt(q.get('demo'), 10) || 0);
+  for (let i = 0; i < n; i++) {
+    const p = { x: -10, y: 14 + Math.random() * (H - 28), vx: V0, vy: 0, trail: [] };
+    let steps = 0;
+    while (!outside(p) && steps++ < 1000) { advance(p, 1 / 60, model); p.trail.push([p.x, p.y]); }
+    p.trail.unshift([-10, p.trail.length ? p.trail[0][1] : p.y]);
+    oldPaths.push({ pts: p.trail, age: 4 * i / n });
+    land(angleOf(p), p.vy >= 0 ? 1 : -1, false);
+  }
+  $('stream').click();
+}
+
+// For checking: run n particles through the zoomed-in foil without drawing.
+window.__mc = (n = 2000, m = model) => {
+  const out = { straight: 0, deflected: 0, back: 0 };
+  for (let i = 0; i < n; i++) {
+    const p = { x: -10, y: 14 + Math.random() * (H - 28), vx: V0, vy: 0 };
+    let minR = 1e9, steps = 0;
+    while (!outside(p) && steps++ < 1000) { advance(p, 1 / 60, m); minR = Math.min(minR, nearestNucleus(p.x, p.y)); }
+    out[classify(angleOf(p))]++;
+    out.minR = Math.min(out.minR ?? 1e9, minR);
+  }
+  return out;
+};
+
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
